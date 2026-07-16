@@ -11,5 +11,6 @@ public class AccountNotFoundException extends BaseException {
 
     public AccountNotFoundException() {
         super(MessageConstant.ACCOUNT_NOT_FOUND);
+
     }
 }
