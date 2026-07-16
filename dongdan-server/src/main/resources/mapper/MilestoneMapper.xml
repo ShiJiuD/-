@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongdan.mapper.MilestoneMapper">
+
+    <!-- 公开列表 -->
+    <select id="listVisible" resultType="com.dongdan.vo.MilestoneVO">
+        SELECT id, year, description, sort_order
+        FROM milestone
+        WHERE is_visible = 1
+        ORDER BY sort_order ASC
+    </select>
+
+    <!-- 管理端全量列表 -->
+    <select id="listAdmin" resultType="com.dongdan.vo.MilestonePageVO">
+        SELECT id, year, description, sort_order, is_visible, create_time
+        FROM milestone
+        ORDER BY sort_order ASC
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO milestone (year, description, sort_order, is_visible,
+                               create_time, update_time)
+        VALUES (#{year}, #{description}, #{sortOrder}, #{isVisible},
+                #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 编辑 -->
+    <update id="update">
+        UPDATE milestone
+        <set>
+            <if test="year != null and year != ''">year = #{year},</if>
+            <if test="description != null and description != ''">description = #{description},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="isVisible != null">is_visible = #{isVisible},</if>
+            update_time = #{updateTime}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 启用禁用 -->
+    <update id="updateStatus">
+        UPDATE milestone SET is_visible = #{isVisible} WHERE id = #{id}
+    </update>
+
+</mapper>

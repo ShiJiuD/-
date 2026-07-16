@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongdan.mapper.CasesMapper">
+
+    <!-- 查询可见案例列表 -->
+    <select id="listVisible" resultType="CaseVO">
+        SELECT id, client_name, industry, description, highlight,
+               image_url, image_keyword, products, quantity,
+               sort_order, create_time
+        FROM customer_case
+        WHERE is_visible = 1
+        ORDER BY sort_order ASC, id DESC
+    </select>
+
+</mapper>
+

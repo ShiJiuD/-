@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongdan.mapper.CertificationMapper">
+
+    <!-- 管理端分页列表 -->
+    <select id="page" resultType="com.dongdan.vo.CertificationPageVO" parameterType="com.dongdan.dto.CertificationPageQueryDTO">
+        SELECT id, name, image_url, image_keyword, sort_order, is_visible, create_time
+        FROM certification
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        ORDER BY sort_order ASC, id DESC
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.dongdan.entity.Certification" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO certification (name, image_url, image_keyword, sort_order, is_visible, create_time, update_time)
+        VALUES (#{name}, #{imageUrl}, #{imageKeyword}, #{sortOrder}, #{isVisible}, #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 编辑（动态更新） -->
+    <update id="update" parameterType="com.dongdan.entity.Certification">
+        UPDATE certification
+        <set>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="imageKeyword != null">image_keyword = #{imageKeyword},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="isVisible != null">is_visible = #{isVisible},</if>
+            update_time = #{updateTime}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+</mapper>

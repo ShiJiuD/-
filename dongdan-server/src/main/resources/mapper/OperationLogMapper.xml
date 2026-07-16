@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongdan.mapper.OperationLogMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO operation_log (admin_id, admin_name, operation, target_type, ip, create_time)
+        VALUES (#{adminId}, #{adminName}, #{operation}, #{targetType}, #{ip}, #{createTime})
+    </insert>
+
+    <select id="page" resultType="com.dongdan.vo.LogPageVO">
+        SELECT id, admin_name, operation, target_type, ip, create_time
+        FROM operation_log
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND operation LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="adminName != null and adminName != ''">
+                AND admin_name = #{adminName}
+            </if>
+            <if test="type != null and type != ''">
+                AND target_type = #{type}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

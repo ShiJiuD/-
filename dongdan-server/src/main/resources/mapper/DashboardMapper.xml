@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongdan.mapper.DashboardMapper">
+
+    <!-- 工作台统计数据 -->
+    <select id="getStats" resultType="DashboardVO">
+        SELECT
+                (SELECT COUNT(*) FROM product)  AS productCount,
+                (SELECT COUNT(*) FROM inquiry WHERE status = 0) AS inquiryCount,
+                (SELECT COUNT(*) FROM banner)   AS bannerCount,
+                (SELECT COUNT(*) FROM operation_log WHERE DATE(create_time) = CURDATE()) AS todayVisits
+    </select>
+
+    <!-- 最近询价 -->
+    <select id="listRecentInquiries" resultType="InquiryPageVO">
+        SELECT id, inquiry_code,
+               company_name, contact_name, phone, product_category,
+               status,
+               create_time
+        FROM inquiry
+        ORDER BY create_time DESC
+        LIMIT #{limit}
+    </select>
+</mapper>
+

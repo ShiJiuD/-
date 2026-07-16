@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongdan.mapper.BannersMapper">
+
+    <!-- 新增 Banner -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO banner (title, subtitle, image_url, image_keyword, link_url,
+                            sort_order, is_visible, create_time, update_time)
+        VALUES (#{title}, #{subtitle}, #{imageUrl}, #{imageKeyword}, #{linkUrl},
+                #{sortOrder}, #{isVisible}, #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 更新 Banner -->
+    <update id="update">
+        UPDATE banner
+        <set>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="subtitle != null">subtitle = #{subtitle},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="imageKeyword != null">image_keyword = #{imageKeyword},</if>
+            <if test="linkUrl != null">link_url = #{linkUrl},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            update_time = #{updateTime}
+        </set>
+        WHERE id = #{id}
+    </update>
+</mapper>
+

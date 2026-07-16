@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongdan.mapper.FaqMapper">
+
+    <!-- 管理端分页列表 -->
+    <select id="page" resultType="com.dongdan.vo.FaqPageVO" parameterType="com.dongdan.dto.FaqPageQueryDTO">
+        SELECT id, question, answer, sort_order, is_visible, create_time
+        FROM faq
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND question LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        ORDER BY sort_order ASC, id DESC
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert" parameterType="com.dongdan.entity.Faq" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO faq (question, answer, sort_order, is_visible, create_time, update_time)
+        VALUES (#{question}, #{answer}, #{sortOrder}, #{isVisible}, #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 编辑（动态更新） -->
+    <update id="update" parameterType="com.dongdan.entity.Faq">
+        UPDATE faq
+        <set>
+            <if test="question != null and question != ''">question = #{question},</if>
+            <if test="answer != null and answer != ''">answer = #{answer},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="isVisible != null">is_visible = #{isVisible},</if>
+            update_time = #{updateTime}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+</mapper>

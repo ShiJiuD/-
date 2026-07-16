@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongdan.mapper.CaseManageMapper">
+
+    <!-- 管理端分页列表 -->
+    <select id="page" resultType="CasePageVO"
+            parameterType="com.dongdan.dto.CasePageQueryDTO">
+        SELECT id, client_name, industry, description, highlight,
+        image_url, image_keyword, products, quantity,
+        sort_order, is_visible, create_time
+        FROM customer_case
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (client_name LIKE CONCAT('%', #{keyword}, '%')
+                OR industry LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+        ORDER BY sort_order ASC, id DESC
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert">
+        INSERT INTO customer_case (client_name, industry, description, highlight,
+                                   image_url, image_keyword, products,
+                                   quantity, sort_order, is_visible,
+                                   create_time, update_time)
+        VALUES (#{clientName}, #{industry}, #{description}, #{highlight},
+                #{imageUrl}, #{imageKeyword}, #{products},
+                #{quantity}, #{sortOrder}, #{isVisible},
+                #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 编辑 -->
+    <update id="update">
+        UPDATE customer_case
+        <set>
+            <if test="clientName != null and clientName != ''">client_name = #{clientName},</if>
+            <if test="industry != null">industry = #{industry},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="highlight != null">highlight = #{highlight},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="imageKeyword != null">image_keyword = #{imageKeyword},</if>
+            <if test="products != null">products = #{products},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="isVisible != null">is_visible = #{isVisible},</if>
+            update_time = #{updateTime}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 启用禁用 -->
+    <update id="updateStatus">
+        UPDATE customer_case
+        SET is_visible = #{isVisible}, update_time = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongdan.mapper.AdvantagesMapper">
+
+    <!-- 全量列表 -->
+    <select id="list" resultType="AdvantagePageVO">
+        SELECT id, title, description, image_url, image_keyword,
+               sort_order, is_visible, create_time
+        FROM advantage
+        ORDER BY sort_order ASC
+    </select>
+
+    <!-- 新增 -->
+    <insert id="insert">
+        INSERT INTO advantage (title, description, image_url, image_keyword,
+                               sort_order, is_visible, create_time, update_time)
+        VALUES (#{title}, #{description}, #{imageUrl}, #{imageKeyword},
+                #{sortOrder}, #{isVisible}, #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 编辑 -->
+    <update id="update">
+        UPDATE advantage
+        <set>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="imageUrl != null">image_url = #{imageUrl},</if>
+            <if test="imageKeyword != null">image_keyword = #{imageKeyword},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="isVisible != null">is_visible = #{isVisible},</if>
+            update_time = #{updateTime}
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 启用禁用 -->
+    <update id="updateStatus">
+        UPDATE advantage SET is_visible = #{isVisible} WHERE id = #{id}
+    </update>
+</mapper>
+

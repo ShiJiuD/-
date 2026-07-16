@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongdan.mapper.ProductMapper">
+
+    <resultMap id="productDetailMap" type="productVO">
+        <id column="id" property="id"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="name" property="name"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="cover_image" property="image"/>
+        <result column="image_keyword" property="imageKeyword"/>
+        <result column="material"    property="material"/>
+        <result column="moq"         property="moq"/>
+        <result column="price_hint"  property="priceHint"/>
+        <result column="description" property="description"/>
+        <result column="is_visible"  property="isVisible"/>
+        <result column="sort_order"  property="sortOrder"/>
+        <collection property="specs" column="id" ofType="com.dongdan.vo.ProductVO$SpecVO" select="selectSpecsByProductId"/>
+        <collection property="images" column="id" ofType="com.dongdan.vo.ProductVO$ImageVO" select="selectImagesByProductId"/>
+    </resultMap>
+
+    <!-- 产品分页列表 -->
+    <select id="page" resultType="productPageVO">
+        SELECT p.id, p.name, p.cover_image, p.material, p.moq,
+        p.price_hint, p.is_visible, p.sort_order, p.create_time,
+        c.name AS category_name
+        FROM product p
+        LEFT JOIN category c ON p.category_id = c.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND p.name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="categoryId != null">
+                AND p.category_id = #{categoryId}
+            </if>
+        </where>
+        ORDER BY p.sort_order ASC, p.id DESC
+    </select>
+
+    <!-- 查产品详情 -->
+    <select id="getById" resultMap="productDetailMap">
+        SELECT p.*, c.name AS category_name
+        FROM product p
+                 LEFT JOIN category c ON p.category_id = c.id
+        WHERE p.id = #{id}
+    </select>
+
+    <!-- 规格子查询 -->
+    <select id="selectSpecsByProductId" resultType="com.dongdan.vo.ProductVO$SpecVO">
+        SELECT spec_label AS label, spec_value AS value
+        FROM product_spec
+        WHERE product_id = #{id}
+        ORDER BY sort_order ASC
+    </select>
+
+    <!-- 图片子查询 -->
+    <select id="selectImagesByProductId" resultType="com.dongdan.vo.ProductVO$ImageVO">
+        SELECT id, image_url AS imageUrl, label, sort_order AS sortOrder
+        FROM product_image
+        WHERE product_id = #{id}
+        ORDER BY sort_order ASC
+    </select>
+
+    <!-- 更新产品（动态 —— 只更新非空字段） -->
+    <update id="update">
+        UPDATE product
+        <set>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="coverImage != null">cover_image = #{coverImage},</if>
+            <if test="imageKeyword != null">image_keyword = #{imageKeyword},</if>
+            <if test="material != null">material = #{material},</if>
+            <if test="moq != null">moq = #{moq},</if>
+            <if test="priceHint != null">price_hint = #{priceHint},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="isVisible != null">is_visible = #{isVisible},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 插入产品 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO product (category_id, name, cover_image, image_keyword,
+                             material, moq, price_hint, description,
+                             is_visible, sort_order, create_time, update_time)
+        VALUES (#{categoryId}, #{name}, #{coverImage}, #{imageKeyword},
+                #{material}, #{moq}, #{priceHint}, #{description},
+                #{isVisible}, #{sortOrder}, #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 插入规格 -->
+    <insert id="insertSpecs">
+        INSERT INTO product_spec (product_id, spec_label, spec_value, sort_order)
+        VALUES
+        <foreach collection="specs" item="s" separator=",">
+            (#{productId}, #{s.specLabel}, #{s.specValue}, #{s.sortOrder})
+        </foreach>
+    </insert>
+
+    <!-- 插入图片 -->
+    <insert id="insertImages">
+        INSERT INTO product_image (product_id, image_url, label, sort_order)
+        VALUES
+        <foreach collection="images" item="img" separator=",">
+            (#{productId}, #{img.imageUrl}, #{img.label}, #{img.sortOrder})
+        </foreach>
+    </insert>
+
+    <!-- 删除产品(批量) -->
+    <delete id="deleteBatch">
+        DELETE FROM product WHERE id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <!-- 分页查询公开产品列表 -->
+    <select id="listPublic" resultType="com.dongdan.vo.ProductListVO">
+        SELECT p.id, p.category_id, p.name, p.cover_image AS image, p.image_keyword AS imageKeyword,
+        p.material, p.moq, p.price_hint, c.name AS category_name
+        FROM product p
+        LEFT JOIN category c ON p.category_id = c.id
+        <where>
+            p.is_visible = 1
+            <if test="keyword != null and keyword != ''">
+                AND p.name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="categoryId != null">
+                AND p.category_id = #{categoryId}
+            </if>
+        </where>
+        ORDER BY p.sort_order ASC, p.id DESC
+    </select>
+</mapper>

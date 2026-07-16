@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongdan.mapper.CategoryMapper">
+
+    <!-- 分页查询品类 -->
+    <select id="page" resultType="CategoryPageVO" parameterType="CategoryPageQueryDTO">
+        SELECT c.id, c.name, c.icon, c.sort_order, c.is_visible, c.create_time,
+        COUNT(p.id) AS product_count
+        FROM category c
+        LEFT JOIN product p ON p.category_id = c.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND c.name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        GROUP BY c.id, c.name, c.icon, c.sort_order, c.is_visible, c.create_time
+        ORDER BY c.sort_order ASC, c.id DESC
+    </select>
+
+    <!-- 新增品类 -->
+    <insert id="insert" parameterType="Category" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO category (name, icon, parent_id, sort_order, is_visible, create_time, update_time)
+        VALUES (#{name}, #{icon}, #{parentId}, #{sortOrder}, #{isVisible}, #{createTime}, #{updateTime})
+    </insert>
+
+    <!-- 更新品类 -->
+    <update id="update" parameterType="Category">
+        UPDATE category
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="icon != null and icon != ''">
+                icon = #{icon},
+            </if>
+            <if test="sortOrder != null">
+                sort_order = #{sortOrder},
+            </if>
+            <if test="isVisible != null">
+                is_visible = #{isVisible},
+            </if>
+            update_time = #{updateTime}
+        </set>
+        WHERE id = #{id}
+    </update>
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dongdan.mapper.HomeMapper">
+
+    <!-- 获取首页banner -->
+    <select id="listBanners" resultType="BannerVO">
+        select * from banner
+        where is_visible = 1
+        order by sort_order asc
+    </select>
+
+    <!-- 获取首页数据看板 -->
+    <select id="getStats" resultType="HomeStatsVO">
+        SELECT
+            MAX(CASE WHEN config_key = 'years'          THEN CAST(config_value AS SIGNED) END) AS years,
+            MAX(CASE WHEN config_key = 'clients'        THEN CAST(config_value AS SIGNED) END) AS clients,
+            MAX(CASE WHEN config_key = 'daily_capacity' THEN CAST(config_value AS SIGNED) END) AS dailyCapacity,
+            MAX(CASE WHEN config_key = 'reorder_rate'   THEN CAST(config_value AS SIGNED) END) AS reorderRate
+        FROM system_config
+        WHERE config_key IN ('years', 'clients', 'daily_capacity', 'reorder_rate')
+    </select>
+
+    <!-- 获取可见分类列表 -->
+    <select id="listVisibleCategories" resultType="CategoryVO">
+        SELECT c.id, c.name, c.icon,
+               COUNT(p.id) AS product_count
+        FROM category c
+                 LEFT JOIN product p ON c.id = p.category_id
+        WHERE c.is_visible = 1
+        GROUP BY c.id, c.name, c.icon, c.sort_order
+        ORDER BY c.sort_order ASC
+    </select>
+
+    <!-- Hero 轮播配置 -->
+    <resultMap id="heroConfigMap" type="com.dongdan.vo.HeroConfigVO">
+        <collection property="slides" ofType="com.dongdan.vo.HeroConfigVO$HeroSlide">
+            <result column="title" property="title"/>
+            <result column="subtitle" property="subtitle"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectHeroConfig" resultMap="heroConfigMap">
+        SELECT
+            (SELECT config_value FROM system_config WHERE config_key = CONCAT('hero_title_', n)) AS title,
+            (SELECT config_value FROM system_config WHERE config_key = CONCAT('hero_subtitle_', n)) AS subtitle
+        FROM (SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4) nums
+    </select>
+
+    <!-- 获取精选产品列表 -->
+    <select id="listFeaturedProducts" resultType="FeaturedProductVO">
+        SELECT p.id, p.category_id,
+               p.name, p.cover_image AS image, p.material, p.moq, p.price_hint,
+               c.name AS category_name
+        FROM product p
+        LEFT JOIN category c ON p.category_id = c.id
+        WHERE p.is_visible = 1
+        ORDER BY p.sort_order ASC, p.view_count DESC
+        LIMIT #{limit}
+    </select>
+</mapper>

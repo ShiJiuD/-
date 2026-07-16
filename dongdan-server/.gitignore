@@ -1,0 +1,9 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+.idea/
+*.iml
+*.ipr
+*.iws
+*.log
+.DS_Store
